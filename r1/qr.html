@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HOME — R1 Installation QR</title>
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <style>
   body {
     background: #0a0a0a;
@@ -20,30 +19,12 @@
   }
   h1 { font-size: 14px; letter-spacing: 0.2em; color: #ff6b35; text-transform: uppercase; }
   p { font-size: 11px; color: #555; text-align: center; max-width: 300px; line-height: 1.6; }
-  canvas { border-radius: 12px; }
+  img { border-radius: 12px; width: 300px; height: 300px; }
 </style>
 </head>
 <body>
 <h1>HOME — Scan on your R1</h1>
-<canvas id="qr"></canvas>
+<img src="qr.png" alt="R1 creation QR code">
 <p>On your R1: Create tab → Add via QR code → scan this</p>
-<script>
-var payload = JSON.stringify({
-  title: "HOME",
-  url: "https://shadowtheory-dev.github.io/open-hue/r1/",
-  description: "Control your Philips Hue lights from your R1",
-  iconUrl: "https://shadowtheory-dev.github.io/open-hue/r1/icon.png",
-  themeColor: "#ff6b35"
-});
-
-QRCode.toCanvas(document.getElementById('qr'), payload, {
-  width: 300,
-  margin: 2,
-  errorCorrectionLevel: 'L',
-  color: { dark: '#000000', light: '#ffffff' }
-}, function(err) {
-  if (err) document.body.innerHTML += '<p style="color:red">QR error: ' + err + '</p>';
-});
-</script>
 </body>
 </html>
