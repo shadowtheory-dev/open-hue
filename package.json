@@ -1,0 +1,17 @@
+{
+  "name": "open-hue",
+  "version": "1.0.0",
+  "description": "Local Philips Hue lighting control server",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "concurrently \"node server/index.js\" \"cd client && npx vite --port 5173\"",
+    "build": "cd client && npx vite build",
+    "postinstall": "cd client && npm install"
+  },
+  "dependencies": {
+    "concurrently": "^9.0.0",
+    "cors": "^2.8.6",
+    "express": "^4.21.0",
+    "node-fetch": "^2.7.0"
+  }
+}

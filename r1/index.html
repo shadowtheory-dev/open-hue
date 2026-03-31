@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=240, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>HOME</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #0a0a0a;
+    --surface: #141414;
+    --border: #222;
+    --accent: #ff6b35;
+    --accent-dim: rgba(255, 107, 53, 0.15);
+    --green: #39ff14;
+    --green-dim: rgba(57, 255, 20, 0.12);
+    --text: #f0f0f0;
+    --muted: #555;
+    --red: #ff3b3b;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    width: 240px;
+    height: 282px;
+    overflow: hidden;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    user-select: none;
+  }
+
+  #app {
+    width: 240px;
+    height: 282px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Header */
+  #header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px 8px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  #header .logo {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+
+  #status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--muted);
+    transition: background 0.3s;
+  }
+  #status-dot.connected { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  #status-dot.error { background: var(--red); }
+
+  /* State view */
+  #state-bar {
+    display: flex;
+    gap: 6px;
+    padding: 7px 12px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .state-pill {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 3px 7px;
+    font-size: 9px;
+    font-family: 'Space Mono', monospace;
+    color: var(--muted);
+    transition: all 0.3s;
+  }
+
+  .state-pill.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-dim);
+  }
+
+  .state-pill .icon { font-size: 9px; }
+
+  /* Main area */
+  #main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+    position: relative;
+  }
+
+  /* Big light toggle */
+  #light-toggle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 10px;
+  }
+
+  #light-toggle.on {
+    border-color: var(--accent);
+    background: var(--accent-dim);
+    box-shadow: 0 0 16px rgba(255, 107, 53, 0.2);
+  }
+
+  #light-toggle:active { transform: scale(0.95); }
+
+  #light-toggle .bulb {
+    font-size: 32px;
+    filter: grayscale(1) brightness(0.5);
+    transition: filter 0.3s;
+  }
+
+  #light-toggle.on .bulb {
+    filter: grayscale(0) brightness(1);
+  }
+
+  #toggle-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-align: center;
+    margin-bottom: 4px;
+  }
+
+  #brightness-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    padding: 0 8px;
+  }
+
+  #brightness-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    color: var(--muted);
+    min-width: 24px;
+    text-align: right;
+  }
+
+  #brightness-slider {
+    flex: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    outline: none;
+  }
+
+  #brightness-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+  }
+
+  /* Quick actions */
+  #quick-actions {
+    display: flex;
+    gap: 5px;
+    padding: 7px 12px 10px;
+    flex-shrink: 0;
+    border-top: 1px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  #quick-actions::-webkit-scrollbar { display: none; }
+
+  .qa-btn {
+    flex-shrink: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 8px;
+    font-size: 8px;
+    font-family: 'Space Mono', monospace;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+    letter-spacing: 0.03em;
+  }
+
+  .qa-btn:active {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: scale(0.96);
+  }
+
+  .qa-btn.active-scene {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-dim);
+  }
+
+  /* Settings overlay */
+  #settings-overlay {
+    position: absolute;
+    inset: 0;
+    background: var(--bg);
+    z-index: 10;
+    display: none;
+    flex-direction: column;
+    padding: 12px;
+  }
+
+  #settings-overlay.open { display: flex; }
+
+  .settings-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+
+  .setting-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 10px;
+  }
+
+  .setting-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .setting-input {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 6px 8px;
+    font-size: 10px;
+    font-family: 'Space Mono', monospace;
+    color: var(--text);
+    width: 100%;
+    outline: none;
+  }
+
+  .setting-input:focus { border-color: var(--accent); }
+
+  .settings-btns {
+    display: flex;
+    gap: 6px;
+    margin-top: auto;
+  }
+
+  .btn-save {
+    flex: 1;
+    background: var(--accent);
+    border: none;
+    border-radius: 4px;
+    padding: 7px;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    color: #000;
+    cursor: pointer;
+    letter-spacing: 0.1em;
+  }
+
+  .btn-cancel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 7px 12px;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    cursor: pointer;
+  }
+
+  /* Settings icon */
+  #settings-icon {
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 12px;
+    transition: color 0.2s;
+    padding: 2px;
+  }
+
+  #settings-icon:active { color: var(--accent); }
+
+  /* Toast */
+  #toast {
+    position: absolute;
+    bottom: 44px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 5px 10px;
+    font-size: 9px;
+    font-family: 'Space Mono', monospace;
+    color: var(--text);
+    white-space: nowrap;
+    opacity: 0;
+    transition: all 0.25s;
+    z-index: 20;
+    pointer-events: none;
+  }
+
+  #toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- Header -->
+  <div id="header">
+    <span class="logo">HOME</span>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span id="settings-icon" onclick="openSettings()">&#9881;</span>
+      <div id="status-dot"></div>
+    </div>
+  </div>
+
+  <!-- State pills -->
+  <div id="state-bar">
+    <div class="state-pill" id="pill-lights">
+      <span class="icon">&#128161;</span>
+      <span id="pill-lights-text">&ndash;</span>
+    </div>
+    <div class="state-pill" id="pill-heat">
+      <span class="icon">&#127777;</span>
+      <span id="pill-heat-text">&ndash;</span>
+    </div>
+    <div class="state-pill" id="pill-room">
+      <span class="icon">&#128100;</span>
+      <span id="pill-room-text">&ndash;</span>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div id="main">
+    <div id="light-toggle" onclick="toggleLights()">
+      <span class="bulb">&#128161;</span>
+    </div>
+    <div id="toggle-label">TAP TO TOGGLE</div>
+    <div id="brightness-row">
+      <span id="brightness-label">--</span>
+      <input type="range" id="brightness-slider" min="1" max="254" value="127"
+             oninput="onBrightnessChange(this.value)"
+             onchange="sendBrightness(this.value)">
+    </div>
+  </div>
+
+  <!-- Quick actions -->
+  <div id="quick-actions">
+    <div class="qa-btn" data-scene="Night" onclick="sendScene('Night')">NIGHT</div>
+    <div class="qa-btn" data-scene="Evening" onclick="sendScene('Evening')">EVE</div>
+    <div class="qa-btn" data-scene="Full" onclick="sendScene('Full')">FULL</div>
+    <div class="qa-btn" data-scene="Off" onclick="sendScene('Off')">OFF</div>
+    <div class="qa-btn" onclick="getStatus()">STATUS</div>
+  </div>
+
+  <!-- Settings overlay -->
+  <div id="settings-overlay">
+    <div class="settings-title">&#9881; CONFIG</div>
+    <div class="setting-row">
+      <div class="setting-label">SERVER IP</div>
+      <input class="setting-input" id="input-ip" type="text" placeholder="192.168.x.x" />
+    </div>
+    <div class="setting-row">
+      <div class="setting-label">PORT</div>
+      <input class="setting-input" id="input-port" type="text" placeholder="3000" />
+    </div>
+    <div class="settings-btns">
+      <div class="btn-cancel" onclick="closeSettings()">CANCEL</div>
+      <button class="btn-save" onclick="saveSettings()">SAVE</button>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast"></div>
+
+</div>
+
+<script>
+// --- Config ---
+var CONFIG_KEY = 'r1_home_config';
+
+function getConfig() {
+  try {
+    var c = localStorage.getItem(CONFIG_KEY);
+    if (c) return JSON.parse(c);
+  } catch(e) {}
+  // Default: use current host if running on the server, otherwise placeholder
+  var defaultIp = (location.hostname && location.hostname !== '') ? location.hostname : '192.168.1.100';
+  var defaultPort = location.port || '3000';
+  return { ip: defaultIp, port: defaultPort };
+}
+
+function getBaseUrl() {
+  var c = getConfig();
+  return 'http://' + c.ip + ':' + c.port;
+}
+
+// --- State ---
+var lightsOn = false;
+var currentBri = 127;
+var activeScene = null;
+
+// --- R1 SDK integration ---
+if (window.rabbit) {
+  // Scroll wheel -> brightness
+  window.rabbit.on('scroll', function(delta) {
+    var newBri = Math.max(1, Math.min(254, currentBri + (delta * 15)));
+    document.getElementById('brightness-slider').value = newBri;
+    onBrightnessChange(newBri);
+    sendBrightness(newBri);
+  });
+}
+
+// --- UI helpers ---
+function setStatus(state) {
+  document.getElementById('status-dot').className = state;
+}
+
+function toast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show';
+  setTimeout(function() { t.className = ''; }, 2000);
+}
+
+function updateToggleUI() {
+  var el = document.getElementById('light-toggle');
+  var label = document.getElementById('toggle-label');
+  el.className = lightsOn ? 'on' : '';
+  label.textContent = lightsOn ? 'LIGHTS ON' : 'LIGHTS OFF';
+}
+
+function updateBrightnessUI(bri) {
+  currentBri = bri;
+  var pct = Math.round((bri / 254) * 100);
+  document.getElementById('brightness-label').textContent = pct + '%';
+  document.getElementById('brightness-slider').value = bri;
+}
+
+function setActiveScene(name) {
+  activeScene = name;
+  var btns = document.querySelectorAll('.qa-btn[data-scene]');
+  for (var i = 0; i < btns.length; i++) {
+    btns[i].className = btns[i].getAttribute('data-scene') === name
+      ? 'qa-btn active-scene' : 'qa-btn';
+  }
+}
+
+function updateStatePills(state) {
+  if (state.lights !== undefined) {
+    lightsOn = state.lights;
+    var pill = document.getElementById('pill-lights');
+    var text = document.getElementById('pill-lights-text');
+    text.textContent = state.lights ? (state.brightness || '?') + '%' : 'OFF';
+    pill.className = 'state-pill' + (state.lights ? ' active' : '');
+    updateToggleUI();
+  }
+  if (state.brightness !== undefined) {
+    updateBrightnessUI(Math.round(state.brightness * 2.54));
+  }
+}
+
+// --- API calls ---
+function toggleLights() {
+  lightsOn = !lightsOn;
+  updateToggleUI();
+  toast(lightsOn ? 'ON' : 'OFF');
+
+  fetch(getBaseUrl() + '/api/lights/all', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ on: lightsOn })
+  }).then(function() {
+    setStatus('connected');
+    getStatus();
+  }).catch(function() {
+    setStatus('error');
+    toast('offline');
+  });
+}
+
+function onBrightnessChange(val) {
+  var pct = Math.round((val / 254) * 100);
+  document.getElementById('brightness-label').textContent = pct + '%';
+}
+
+var briTimeout = null;
+function sendBrightness(val) {
+  clearTimeout(briTimeout);
+  briTimeout = setTimeout(function() {
+    currentBri = parseInt(val);
+    fetch(getBaseUrl() + '/api/lights/all', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ on: true, bri: parseInt(val) })
+    }).then(function() {
+      lightsOn = true;
+      updateToggleUI();
+      setStatus('connected');
+    }).catch(function() {
+      setStatus('error');
+    });
+  }, 150);
+}
+
+function sendScene(scene) {
+  toast(scene.toUpperCase());
+  setActiveScene(scene);
+  fetch(getBaseUrl() + '/api/scenes/' + scene, { method: 'POST' })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      setStatus('connected');
+      if (data.state) updateStatePills(data.state);
+    })
+    .catch(function() {
+      setStatus('error');
+      toast('offline');
+    });
+}
+
+function getStatus() {
+  fetch(getBaseUrl() + '/api/status')
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      if (data.state) updateStatePills(data.state);
+      setStatus('connected');
+    })
+    .catch(function() {
+      setStatus('error');
+    });
+}
+
+// --- Settings ---
+function openSettings() {
+  var c = getConfig();
+  document.getElementById('input-ip').value = c.ip;
+  document.getElementById('input-port').value = c.port;
+  document.getElementById('settings-overlay').className = 'open';
+}
+
+function closeSettings() {
+  document.getElementById('settings-overlay').className = '';
+}
+
+function saveSettings() {
+  var config = {
+    ip: document.getElementById('input-ip').value.trim() || '192.168.1.100',
+    port: document.getElementById('input-port').value.trim() || '3000'
+  };
+  localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
+  closeSettings();
+  toast('saved');
+  getStatus();
+}
+
+// --- Init ---
+window.addEventListener('load', function() {
+  setStatus('error');
+  getStatus();
+  setInterval(getStatus, 30000);
+});
+</script>
+</body>
+</html>
