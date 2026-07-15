@@ -14,7 +14,7 @@ app.use(express.json());
 // Serve built React app in production
 app.use(express.static(path.join(__dirname, '../client/dist')));
 
-// Serve R1 creation
+// Serve the R1 creation for same-origin LAN install (no CORS / mixed-content issues)
 app.use('/r1', express.static(path.join(__dirname, '../r1')));
 
 // --- Setup status ---

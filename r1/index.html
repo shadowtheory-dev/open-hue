@@ -447,16 +447,16 @@ var lightsOn = false;
 var currentBri = 127;
 var activeScene = null;
 
-// --- R1 SDK integration ---
-if (window.rabbit) {
-  // Scroll wheel -> brightness
-  window.rabbit.on('scroll', function(delta) {
-    var newBri = Math.max(1, Math.min(254, currentBri + (delta * 15)));
-    document.getElementById('brightness-slider').value = newBri;
-    onBrightnessChange(newBri);
-    sendBrightness(newBri);
-  });
+// --- R1 hardware events (creations SDK) ---
+function nudgeBrightness(delta) {
+  var newBri = Math.max(1, Math.min(254, currentBri + delta));
+  document.getElementById('brightness-slider').value = newBri;
+  onBrightnessChange(newBri);
+  sendBrightness(newBri);
 }
+window.addEventListener('scrollUp', function() { nudgeBrightness(15); });
+window.addEventListener('scrollDown', function() { nudgeBrightness(-15); });
+window.addEventListener('sideClick', function() { toggleLights(); });
 
 // --- UI helpers ---
 function setStatus(state) {
@@ -567,7 +567,10 @@ function sendScene(scene) {
 
 function getStatus() {
   fetch(getBaseUrl() + '/api/status')
-    .then(function(res) { return res.json(); })
+    .then(function(res) {
+      if (!res.ok) throw new Error('status ' + res.status);
+      return res.json();
+    })
     .then(function(data) {
       if (data.state) updateStatePills(data.state);
       setStatus('connected');
@@ -594,7 +597,11 @@ function saveSettings() {
     ip: document.getElementById('input-ip').value.trim() || '192.168.1.100',
     port: document.getElementById('input-port').value.trim() || '3000'
   };
-  localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
+  var json = JSON.stringify(config);
+  localStorage.setItem(CONFIG_KEY, json);
+  if (window.creationStorage && window.creationStorage.plain) {
+    window.creationStorage.plain.setItem(CONFIG_KEY, btoa(json)).catch(function() {});
+  }
   closeSettings();
   toast('saved');
   getStatus();
@@ -603,7 +610,17 @@ function saveSettings() {
 // --- Init ---
 window.addEventListener('load', function() {
   setStatus('error');
-  getStatus();
+  // Hydrate config from creation storage (persists across reinstalls on device)
+  if (window.creationStorage && window.creationStorage.plain) {
+    window.creationStorage.plain.getItem(CONFIG_KEY).then(function(v) {
+      if (v && !localStorage.getItem(CONFIG_KEY)) {
+        localStorage.setItem(CONFIG_KEY, atob(v));
+      }
+      getStatus();
+    }).catch(function() { getStatus(); });
+  } else {
+    getStatus();
+  }
   setInterval(getStatus, 30000);
 });
 </script>

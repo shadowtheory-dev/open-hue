@@ -10,21 +10,44 @@
     color: #f0f0f0;
     font-family: monospace;
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: center;
     min-height: 100vh;
     margin: 0;
-    gap: 24px;
+    gap: 48px;
+    padding: 32px;
+    box-sizing: border-box;
   }
-  h1 { font-size: 14px; letter-spacing: 0.2em; color: #ff6b35; text-transform: uppercase; }
-  p { font-size: 11px; color: #555; text-align: center; max-width: 300px; line-height: 1.6; }
+  .card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    max-width: 340px;
+  }
+  h1 { font-size: 14px; letter-spacing: 0.2em; color: #ff6b35; text-transform: uppercase; margin: 0; }
+  h2 { font-size: 11px; letter-spacing: 0.15em; color: #f0f0f0; text-transform: uppercase; margin: 0; }
+  p { font-size: 11px; color: #777; text-align: center; line-height: 1.6; margin: 0; }
   img { border-radius: 12px; width: 300px; height: 300px; }
+  .hint { color: #555; font-size: 10px; }
 </style>
 </head>
 <body>
-<h1>HOME — Scan on your R1</h1>
-<img src="qr.png" alt="R1 creation QR code">
-<p>On your R1: Create tab → Add via QR code → scan this</p>
+<div class="card">
+  <h1>HOME — Scan on your R1</h1>
+  <h2>1 · Hosted (GitHub Pages)</h2>
+  <img src="qr.png" alt="R1 creation QR — GitHub Pages">
+  <p>Creations tab &rarr; add via QR code &rarr; scan.<br>
+  If a warning about an untrusted / non-rabbit source appears, confirm through it.</p>
+</div>
+<div class="card">
+  <h1>&nbsp;</h1>
+  <h2>2 · Local (Mac server)</h2>
+  <img src="qr-local.png" alt="R1 creation QR — local server">
+  <p>Fallback: points at <b>http://192.168.0.21:3000/r1/</b>.<br>
+  Use if the hosted version installs but can't reach the server.<br>
+  <span class="hint">Requires the Mac server running and R1 on the same WiFi.</span></p>
+</div>
 </body>
 </html>
